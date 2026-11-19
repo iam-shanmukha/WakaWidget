@@ -1,6 +1,6 @@
 # WakaTime Widget for Android
 
-A resizable home-screen widget for your WakaTime coding stats.
+A resizable home-screen widget for your [WakaTime](https://wakatime.com) coding stats.
 
 | Widget size | Shows |
 |---|---|
@@ -8,27 +8,47 @@ A resizable home-screen widget for your WakaTime coding stats.
 | Medium (4×2) | + top languages and top project |
 | Large (4×3+) | + bar chart of the last 7 days |
 
-Refreshes about every 30 minutes in the background. Tap ↻ to refresh now, tap anywhere else to open settings. Colors follow your wallpaper (Material You) on Android 12+. Works on Android 8.0+.
+It refreshes about every 30 minutes in the background. Tap ↻ to refresh now, or tap anywhere else to open settings. Colors follow your wallpaper (Material You) on Android 12+. Works on Android 8.0+.
 
-Your API key is encrypted with the Android Keystore and only ever sent to wakatime.com.
+## Install
 
-## Setup (one time)
+1. On your phone, download **[wakatime-widget.apk](https://github.com/iam-shanmukha/WakaWidget/releases/latest/download/wakatime-widget.apk)** (always the newest build) and open it to install. You may need to allow installs from your browser. Older builds and SHA-256 checksums are on the [Releases](https://github.com/iam-shanmukha/WakaWidget/releases) page.
+2. Open **WakaTime Widget**, paste your secret API key from [wakatime.com/settings/api-key](https://wakatime.com/settings/api-key) and tap **Save key**.
+3. Tap **Add widget to home screen**, or long-press the home screen, open Widgets and find WakaTime.
 
-1. Create a new GitHub repo and push this folder to the `main` branch.
-2. In the repo, open **Settings → Secrets and variables → Actions** and add four repository secrets, using the values from `signing-secrets.txt`:
-   `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`
-3. Open the **Actions** tab and run **Build APK** (or push any commit).
-4. After ~5 minutes, open **Releases**, download the APK on your phone and install it.
+To get updates automatically, add this repo's URL to [Obtainium](https://github.com/ImranR98/Obtainium).
 
-Keep `signing-secrets.txt` somewhere safe and **never commit it**. Every update must be signed with the same key, or Android will refuse to install it over the old version.
+## Privacy
 
-## Updates
+- Your API key is encrypted with a key held in the Android Keystore and stays on the phone.
+- The app only talks to `wakatime.com`. There are no analytics, ads or other servers.
+- The only permission it asks for is `INTERNET`.
 
-Every push to `main` builds a new release (`build-N`) with a higher version code. To get updates automatically, add the repo URL to [Obtainium](https://github.com/ImranR98/Obtainium).
+## Building it yourself
 
-## Building locally
+You need JDK 17 and the Android SDK (platform 35), or Android Studio.
 
-Open the folder in Android Studio, or run `./gradlew assembleRelease`. Without the keystore environment variables, local builds are signed with the debug key, so they can't be installed over a CI build (uninstall first).
+```sh
+./gradlew assembleDebug      # app/build/outputs/apk/debug/
+./gradlew assembleRelease    # signed with the debug key unless KEYSTORE_* env vars are set
+```
+
+A build signed with a different key can't be installed over the release APK. Uninstall the app first.
+
+### Releasing from your own fork
+
+CI (`.github/workflows/build.yml`) builds a signed APK on every push to `main` and publishes it, with a SHA-256 checksum, as Release `build-N`. It also keeps the APK as a workflow artifact. Pull requests get a debug build, which you can download from the run's Artifacts. To make releases from a fork:
+
+1. Create a keystore and keep it somewhere safe. Every future update has to be signed with it.
+   ```sh
+   keytool -genkeypair -v -keystore release.jks -alias wakawidget \
+     -keyalg RSA -keysize 4096 -validity 36500
+   base64 -w0 release.jks   # value for KEYSTORE_BASE64
+   ```
+2. In your fork, open **Settings → Secrets and variables → Actions** and add `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`.
+3. Push to `main`, or run **Build APK** from the Actions tab.
+
+Never commit the keystore or its passwords. `.gitignore` already excludes `*.jks`, `*.keystore` and `signing-secrets.txt`.
 
 ## Project layout
 
@@ -37,3 +57,13 @@ Open the folder in Android Studio, or run `./gradlew assembleRelease`. Without t
 - `RefreshWorker.kt`: background refresh via WorkManager
 - `ApiKeyStore.kt`: encrypted API key storage
 - `MainActivity.kt`: settings screen (paste key, add widget)
+
+More detail on the architecture and on Glance's pitfalls is in [AGENTS.md](AGENTS.md).
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+[MIT](LICENSE). This project is not affiliated with WakaTime.
