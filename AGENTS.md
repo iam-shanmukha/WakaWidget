@@ -22,7 +22,7 @@ There is no version catalog; versions live inline in `build.gradle.kts` and `app
 ## Layout
 ```
 app/src/main/java/dev/vishnu/wakawidget/
-  MainActivity.kt        Compose settings screen: paste API key, "Save key", pin widget
+  MainActivity.kt        Compose settings screen: paste API key or OAuth token, "Save", pin widget
   ApiKeyStore.kt         API key encrypted with AES-GCM; the key lives in AndroidKeyStore
   WakaApi.kt             Blocking HTTP client (call it off the main thread)
   Stats.kt               Stats/Item/Day model, JSON (de)serialization, StatsCache, formatDuration()
@@ -45,10 +45,12 @@ On failure, `push(null, "message")` keeps the old stats and only sets the error 
 
 ## WakaTime API
 - Base: `https://wakatime.com/api/v1/users/current`
-- Auth header: `Authorization: Basic base64(apiKey)`, using the raw key with no `:`.
+- Two kinds of credential, told apart by prefix in `WakaApi.authorizationHeader()`:
+  - Secret API key (`waka_…`): `Authorization: Basic base64(apiKey)`, using the raw key with no `:`.
+  - Personal OAuth token (`waka_tok_…`, from wakatime.com/oauth, no OAuth app needed, lasts ~100 years): `Authorization: Bearer <token>`.
 - `/status_bar/today` returns today's `grand_total.total_seconds`, `languages[]`, and `projects[]`.
 - `/summaries?start=YYYY-MM-DD&end=YYYY-MM-DD` returns the 7 days for the chart, as `data[].range.date` and `data[].grand_total.total_seconds`.
-- **API keys are limited to plugin endpoints** (seen 2026-11-19). `/status_bar/today` works, but `/summaries`, `/stats`, `/durations` and `/insights` return 403 `"API Keys are only for plugins, use your personal oauth token"`. The app treats a 403 from `/summaries` as "no chart" (empty `week`), and only a 401, or a 403 from `status_bar`, as a bad key. The chart needs WakaTime OAuth (not built yet).
+- **API keys are limited to plugin endpoints** (seen 2026-11-19). `/status_bar/today` works, but `/summaries`, `/stats`, `/durations` and `/insights` return 403 `"API Keys are only for plugins, use your personal oauth token"`. The app treats a 403 from `/summaries` as "no chart" (empty `week`), and only a 401, or a 403 from `status_bar`, as a bad key. With an OAuth token the chart works.
 - The free plan only exposes about 2 weeks of history, so don't build features needing more without saying so.
 - A 401 (or a 403 from `status_bar/today`) means a bad key (`AuthException`). Anything else is retried by WorkManager.
 - Rate limits: refresh no more often than every 15 minutes (the WorkManager floor anyway).
@@ -72,7 +74,7 @@ On failure, `push(null, "message")` keeps the old stats and only sets the error 
 ## Verifying changes
 - Some AI sandboxes can't reach Google's Maven or the Android SDK. If you can't build, say so plainly. Don't claim it compiles. Push and read the Actions log, or ask the owner to paste it.
 - If you can build: `./gradlew assembleRelease` must pass. Also run `./gradlew lint` when touching the manifest or resources.
-- There are no tests yet. If you add logic (parsing, formatting), add JVM unit tests under `app/src/test/`. Keep `Stats.fromJson` and `formatDuration` pure so they stay testable.
+- JVM unit tests live in `app/src/test/` (JUnit 4) and the PR CI job runs `testDebugUnitTest`. Add tests when you add logic (parsing, formatting, auth). Android classes such as `android.util.*` and `org.json` are stubs in JVM tests, so keep tested functions free of them (that's why `WakaApi` uses `java.util.Base64`). Keep `Stats.fromJson` and `formatDuration` pure so they stay testable.
 - For widget UI changes, describe what each size bucket looks like after the change.
 
 ## Conventions

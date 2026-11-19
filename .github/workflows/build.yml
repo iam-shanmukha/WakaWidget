@@ -24,10 +24,10 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Build debug APK and lint
+      - name: Unit tests, debug APK and lint
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug lint --no-daemon --stacktrace
+          ./gradlew testDebugUnitTest assembleDebug lint --no-daemon --stacktrace
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
