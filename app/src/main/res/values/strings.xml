@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WakaTime Widget</string>
+    <string name="widget_name">WakaTime</string>
+    <string name="widget_description">Today\'s coding time, top languages and the last 7 days</string>
+</resources>
