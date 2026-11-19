@@ -189,7 +189,7 @@ private fun WeekChart(stats: Stats) {
     if (days.isEmpty()) {
         // WakaTime only serves the 7-day summaries to OAuth tokens, not API keys.
         Text(
-            text = "7-day chart not available",
+            text = "7-day chart needs an OAuth token",
             style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp),
         )
         return

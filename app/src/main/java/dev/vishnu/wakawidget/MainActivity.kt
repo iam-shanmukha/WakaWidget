@@ -84,20 +84,30 @@ private fun SettingsScreen() {
         ) {
             Text("WakaTime Widget", style = MaterialTheme.typography.headlineMedium)
             Text(
-                "Paste your secret API key. It stays on this phone, encrypted, " +
-                    "and is only sent to wakatime.com.",
+                "Paste your WakaTime API key or a personal OAuth token. It stays on this " +
+                    "phone, encrypted, and is only sent to wakatime.com.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                "API key: today's time, languages and projects. " +
+                    "OAuth token: the same, plus the 7-day chart.",
                 style = MaterialTheme.typography.bodyMedium,
             )
             TextButton(onClick = {
                 context.startActivity(
                     Intent(Intent.ACTION_VIEW, Uri.parse("https://wakatime.com/settings/api-key"))
                 )
-            }) { Text("Get your API key from WakaTime") }
+            }) { Text("Get your API key") }
+            TextButton(onClick = {
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://wakatime.com/oauth"))
+                )
+            }) { Text("Get a personal OAuth token (for the 7-day chart)") }
 
             OutlinedTextField(
                 value = apiKey,
                 onValueChange = { apiKey = it.trim() },
-                label = { Text("API key") },
+                label = { Text("API key or OAuth token") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
@@ -117,11 +127,16 @@ private fun SettingsScreen() {
                             StatsCache.save(context, stats)
                             WidgetUpdater.push(context, stats, null)
                             RefreshWorker.schedule(context)
-                            status = "Key saved. Today so far: ${formatDuration(stats.todaySeconds)}"
+                            val today = "Saved. Today so far: ${formatDuration(stats.todaySeconds)}."
+                            status = if (stats.week.isEmpty() && !WakaApi.isOAuthToken(key)) {
+                                "$today Use an OAuth token to also see the 7-day chart."
+                            } else {
+                                today
+                            }
                         }
                         result.onFailure { e ->
                             status = if (e is AuthException) {
-                                "WakaTime rejected this key. Copy it again from the settings page."
+                                "WakaTime rejected this key or token. Copy it again from WakaTime."
                             } else {
                                 "Couldn't reach WakaTime (${e.message}). Check your connection and try again."
                             }
@@ -129,7 +144,7 @@ private fun SettingsScreen() {
                         busy = false
                     }
                 },
-            ) { Text("Save key") }
+            ) { Text("Save") }
 
             status?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
 

@@ -8,21 +8,30 @@ A resizable home-screen widget for your [WakaTime](https://wakatime.com) coding 
 | Medium (4×2) | + top languages and top project |
 | Large (4×3+) | + bar chart of the last 7 days |
 
-WakaTime only serves the 7-day history to OAuth tokens, not to the secret API key the app uses. With an API key, the large widget shows "7-day chart not available" in place of the chart.
+### API key or OAuth token
+
+The app accepts either one:
+
+| You paste | Where to get it | Shows |
+|---|---|---|
+| Secret API key (`waka_…`) | [wakatime.com/settings/api-key](https://wakatime.com/settings/api-key) | Today's time, languages and projects |
+| Personal OAuth token (`waka_tok_…`) | [wakatime.com/oauth](https://wakatime.com/oauth) | All of that, plus the 7-day chart |
+
+WakaTime limits API keys to the endpoints its editor plugins use, so they can't read the 7-day history. With an API key, the large widget shows "7-day chart needs an OAuth token" where the chart would be. A personal OAuth token doesn't require registering an OAuth app.
 
 It refreshes about every 30 minutes in the background. Tap ↻ to refresh now, or tap anywhere else to open settings. Colors follow your wallpaper (Material You) on Android 12+. Works on Android 8.0+.
 
 ## Install
 
 1. On your phone, download **[wakatime-widget.apk](https://github.com/iam-shanmukha/WakaWidget/releases/latest/download/wakatime-widget.apk)** (always the newest build) and open it to install. You may need to allow installs from your browser. Older builds and SHA-256 checksums are on the [Releases](https://github.com/iam-shanmukha/WakaWidget/releases) page.
-2. Open **WakaTime Widget**, paste your secret API key from [wakatime.com/settings/api-key](https://wakatime.com/settings/api-key) and tap **Save key**.
+2. Open **WakaTime Widget**, paste your API key or personal OAuth token (see the table above) and tap **Save**.
 3. Tap **Add widget to home screen**, or long-press the home screen, open Widgets and find WakaTime.
 
 To get updates automatically, add this repo's URL to [Obtainium](https://github.com/ImranR98/Obtainium).
 
 ## Privacy
 
-- Your API key is encrypted with a key held in the Android Keystore and stays on the phone.
+- Your API key or token is encrypted with a key held in the Android Keystore and stays on the phone.
 - The app only talks to `wakatime.com`. There are no analytics, ads or other servers.
 - The only permission it asks for is `INTERNET`.
 
