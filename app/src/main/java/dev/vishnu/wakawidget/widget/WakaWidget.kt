@@ -36,6 +36,7 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import dev.vishnu.wakawidget.Day
 import dev.vishnu.wakawidget.MainActivity
 import dev.vishnu.wakawidget.Stats
 import dev.vishnu.wakawidget.StatsCache
@@ -134,6 +135,15 @@ private fun Header(stats: Stats, error: String?) {
 
 @Composable
 private fun Breakdown(stats: Stats, rows: Int) {
+    // Own Column: Glance caps each Row/Column at 10 children, so these rows
+    // must not be emitted straight into the widget's outer Column.
+    Column(modifier = GlanceModifier.fillMaxWidth()) {
+        BreakdownRows(stats, rows)
+    }
+}
+
+@Composable
+private fun BreakdownRows(stats: Stats, rows: Int) {
     val langs = stats.languages.take(rows)
     if (langs.isEmpty()) {
         Text(
@@ -181,11 +191,18 @@ private fun WeekChart(stats: Stats) {
     val today = LocalDate.now().toString()
     val maxBar = 56
 
-    Text(
-        text = "Last 7 days: ${formatDuration(days.sumOf { it.seconds })}",
-        style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp),
-    )
-    Spacer(GlanceModifier.height(4.dp))
+    Column(modifier = GlanceModifier.fillMaxWidth()) {
+        Text(
+            text = "Last 7 days: ${formatDuration(days.sumOf { it.seconds })}",
+            style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp),
+        )
+        Spacer(GlanceModifier.height(4.dp))
+        DayBars(days, max, today, maxBar)
+    }
+}
+
+@Composable
+private fun DayBars(days: List<Day>, max: Double, today: String, maxBar: Int) {
     Row(
         modifier = GlanceModifier.fillMaxWidth().height((maxBar + 18).dp),
         verticalAlignment = Alignment.Bottom,
