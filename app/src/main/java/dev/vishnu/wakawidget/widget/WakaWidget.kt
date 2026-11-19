@@ -186,7 +186,14 @@ private fun BreakdownRows(stats: Stats, rows: Int) {
 @Composable
 private fun WeekChart(stats: Stats) {
     val days = stats.week.takeLast(7)
-    if (days.isEmpty()) return
+    if (days.isEmpty()) {
+        // WakaTime only serves the 7-day summaries to OAuth tokens, not API keys.
+        Text(
+            text = "7-day chart not available",
+            style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp),
+        )
+        return
+    }
     val max = days.maxOf { it.seconds }.coerceAtLeast(60.0)
     val today = LocalDate.now().toString()
     val maxBar = 56

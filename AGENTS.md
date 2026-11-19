@@ -48,8 +48,9 @@ On failure, `push(null, "message")` keeps the old stats and only sets the error 
 - Auth header: `Authorization: Basic base64(apiKey)`, using the raw key with no `:`.
 - `/status_bar/today` returns today's `grand_total.total_seconds`, `languages[]`, and `projects[]`.
 - `/summaries?start=YYYY-MM-DD&end=YYYY-MM-DD` returns the 7 days for the chart, as `data[].range.date` and `data[].grand_total.total_seconds`.
+- **API keys are limited to plugin endpoints** (seen 2026-11-19). `/status_bar/today` works, but `/summaries`, `/stats`, `/durations` and `/insights` return 403 `"API Keys are only for plugins, use your personal oauth token"`. The app treats a 403 from `/summaries` as "no chart" (empty `week`), and only a 401, or a 403 from `status_bar`, as a bad key. The chart needs WakaTime OAuth (not built yet).
 - The free plan only exposes about 2 weeks of history, so don't build features needing more without saying so.
-- A 401 or 403 means a bad key (`AuthException`). Anything else is retried by WorkManager.
+- A 401 (or a 403 from `status_bar/today`) means a bad key (`AuthException`). Anything else is retried by WorkManager.
 - Rate limits: refresh no more often than every 15 minutes (the WorkManager floor anyway).
 
 ## Glance rules (most common source of bugs)

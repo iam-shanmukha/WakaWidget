@@ -8,6 +8,8 @@ A resizable home-screen widget for your [WakaTime](https://wakatime.com) coding 
 | Medium (4×2) | + top languages and top project |
 | Large (4×3+) | + bar chart of the last 7 days |
 
+WakaTime only serves the 7-day history to OAuth tokens, not to the secret API key the app uses. With an API key, the large widget shows "7-day chart not available" in place of the chart.
+
 It refreshes about every 30 minutes in the background. Tap ↻ to refresh now, or tap anywhere else to open settings. Colors follow your wallpaper (Material You) on Android 12+. Works on Android 8.0+.
 
 ## Install
