@@ -61,7 +61,7 @@ On failure, `push(null, "message")` keeps the old stats and only sets the error 
 - Never do network or disk-heavy work inside `provideContent`. Fetch in the worker and push state.
 
 ## Build, sign, release
-- CI (`build.yml`) runs on every push to `main` and on manual dispatch. It decodes the `KEYSTORE_BASE64` secret, runs `./gradlew assembleRelease`, and publishes Release `build-<run_number>`.
+- CI (`build.yml`) runs on every push to `main` and on manual dispatch. It decodes the `KEYSTORE_BASE64` secret, runs `./gradlew assembleRelease`, and publishes Release `build-<run_number>` with a fixed-name asset `wakatime-widget.apk` (+ `.sha256`), so `releases/latest/download/wakatime-widget.apk` always points at the newest build. PRs run a separate unsigned `assembleDebug lint` job with no secrets.
 - `versionCode` = `GITHUB_RUN_NUMBER`, so every CI build is installable over the previous one. Don't hardcode versionCode.
 - Required repo secrets: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
 - Local builds without those env vars are signed with the **debug** key and can't be installed over CI builds.
